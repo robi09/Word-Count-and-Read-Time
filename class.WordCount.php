@@ -54,13 +54,15 @@ class WordCount {
 		$hours = floor($time / 60);
 	    $minutes = ($time % 60);
 
-	    if ($time <= 1) {
-	        return __('Less then a minute', 'swcart');
+	    if ($time < 1) {
+	        return __('less then a minute', 'swcart');
+	    } elseif($time == 1) {
+			return __('one minute', 'swcart');
 	    } elseif($time < 59) {
 			return $minutes . ' ' . __('minutes', 'swcart');
-	    } elseif(($time % 60) == 0) {
+		} elseif(($time % 60) == 0) {
 	    	if($hours == 1) {
-	    		return __('One hour', 'swcart');
+	    		return __('one hour', 'swcart');
 	    	} else {
 	    		return $hours . ' ' . __('hours', 'swcart');
 	    	}
@@ -70,16 +72,16 @@ class WordCount {
 	}
 
 	public function ReadingTime($words) {
-		$words_per_minute = '260';
+		$words_per_minute = '180';
 		$minutes = $words / $words_per_minute;
 
-		return round($minutes, 2);
+		return round($minutes);
 	}
 
 	public function FrontendAppend($filter_content) {
 		global $id;
 
-		$final = '</br> <span id="swcart" attr-rawtime="'.get_post_meta($id, 'swcart-reading-time-raw', true).'" style="font-size: 12px; font-weight: normal; opacity: 0.5;">Read in: ' . get_post_meta($id, 'swcart-reading-time', true) . '</span>';
+		$final = '<span id="swcart" attr-rawtime="'.get_post_meta($id, 'swcart-reading-time-raw', true).'" style="font-size: 12px; font-weight: normal; opacity: 0.5;">Read in ' . get_post_meta($id, 'swcart-reading-time', true) . '</span>';
 		
 		$final .= $filter_content;
 
