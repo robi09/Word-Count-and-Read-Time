@@ -11,6 +11,12 @@ class WordCount {
 		add_filter( 'the_content', array($this, 'FrontendAppend'), 10, 2 );
 		add_filter( 'the_excerpt', array($this, 'FrontendAppend'), 10, 2 );
 
+		//Enqueue scripts
+		add_action( 'wp_enqueue_scripts', array($this, 'scripts'));
+
+		$this->OldPosts();
+		// delete_option( 'swcart-oldposts' );
+
 	}
 
 	public function core() {
@@ -38,6 +44,7 @@ class WordCount {
 		   update_post_meta($id, 'swcart-reading-time', $this->TimeConvert($this->ReadingTime($this->WordCount($id))));
 		}
 
+			//and raw reading time
 		if (!add_post_meta($id, 'swcart-reading-time-raw', $this->ReadingTime($this->WordCount($id)), true )) { 
 		   update_post_meta($id, 'swcart-reading-time-raw', $this->ReadingTime($this->WordCount($id)));
 		}
@@ -72,11 +79,38 @@ class WordCount {
 	public function FrontendAppend($filter_content) {
 		global $id;
 
-		$final = '</br> <span style="font-size: 12px; font-weight: normal; opacity: 0.5;">Read in: ' . get_post_meta($id, 'swcart-reading-time', true) . '</span>';
+		$final = '</br> <span id="swcart" attr-rawtime="'.get_post_meta($id, 'swcart-reading-time-raw', true).'" style="font-size: 12px; font-weight: normal; opacity: 0.5;">Read in: ' . get_post_meta($id, 'swcart-reading-time', true) . '</span>';
 		
 		$final .= $filter_content;
 
 		return $final;
 	}
 
+	public function scripts() {
+		wp_enqueue_script( 'swcart-js', plugin_dir_url( __FILE__ ) . 'js/swcart-scripts.js', array('jquery'), '1.0', false );
+	}
+
+	public function OldPosts() {
+
+		$option = get_option('swcart-oldposts');
+		if(!$option) {
+			$args = array( 
+				'posts_per_page' => '-1',
+				'post_type' => 'post', 
+				'post_status'      => 'publish'
+			);
+
+			$posts = get_posts( $args );
+
+			foreach ($posts as $post ) {
+				setup_postdata( $post ); 
+
+				$this->UpdateMeta($post->ID);
+			}
+				
+			wp_reset_postdata();
+		}
+
+		update_option('swcart-oldposts', 'on', 'no');
+	}
 }
