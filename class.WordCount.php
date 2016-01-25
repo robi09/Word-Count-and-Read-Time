@@ -11,6 +11,8 @@ class WordCount {
 		add_filter( 'the_content', array($this, 'FrontendAppend'), 10, 2 );
 		add_filter( 'the_excerpt', array($this, 'FrontendAppend'), 10, 2 );
 
+		add_filter( 'the_content', array($this, 'ContentWrapper'), 100, 2 );
+
 		//Enqueue scripts
 		add_action( 'wp_enqueue_scripts', array($this, 'scripts'));
 
@@ -114,5 +116,13 @@ class WordCount {
 		}
 
 		update_option('swcart-oldposts', 'on', 'no');
+	}
+
+	public function ContentWrapper($content) {
+		$return = '<div id="swcart-wrapper">';
+		$return .= $content;
+		$return .= '</div><!--/swcart-wrapper-->';
+
+		return $return;
 	}
 }
